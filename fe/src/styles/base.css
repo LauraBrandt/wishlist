@@ -1,0 +1,63 @@
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --vt-c-white: #ffffff;
+  --vt-c-black: #181818;
+  --vt-c-text-light: #2c2c2c;
+  --vt-c-text-dark: rgba(235, 235, 235, 0.64);
+  --vt-c-divider-light: rgba(60, 60, 60, 0.29);
+  --vt-c-divider-dark: rgba(84, 84, 84, 0.65);
+
+  --lb-c-blue: #91C4F2;
+  --lb-c-cream: #F2EEE3;
+  --lb-c-red: #DA3E52;
+  --lb-c-red-hover: #BC2438;
+  --lb-c-teal: #0E7C7B;
+  --lb-c-teal-hover: #0C6969;
+  --lb-c-violet: #4E4C67;
+}
+
+/* semantic color variables for this project */
+:root {
+  --text-font: 'Fira Sans', 'Helvetica Neue', sans-serif;
+  --header-font: 'Montserrat', sans-serif;
+  --title-font: 'Oleo Script', sans-serif;
+
+  --color-background: var(--vt-c-white);
+  --color-text: var(--vt-c-text-light);
+  --color-border: var(--vt-c-divider-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-text: var(--vt-c-text-dark);
+    --color-border: var(--vt-c-divider-dark);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.5;
+  font-family: var(--text-font);
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body strong {
+  font-weight: 600;
+}
