@@ -3,7 +3,7 @@ import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
-import { useUserStore } from '../stores/user'
+import { useAuthStore } from '../stores/auth'
 import BaseButton from '../elements/BaseButton.vue'
 import SingleNote from './SingleNote.vue'
 import { beURL } from '../../config'
@@ -12,8 +12,8 @@ const listStore = useListStore()
 const { selectedList, selectedListId } = storeToRefs(listStore)
 const { fetchLists } = listStore
 
-const userStore = useUserStore()
-const { user } = storeToRefs(userStore)
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
 
 const notes = computed(() => selectedList.value?.notes || [])
 const tempNotes = ref([...notes.value])
@@ -30,8 +30,8 @@ watch(
 function addNote() {
   tempNotes.value.push({
     user: {
-      id: user.value.id,
-      name: user.value.name,
+      id: user.value?.id,
+      name: user.value?.name,
     },
     text: '',
   })

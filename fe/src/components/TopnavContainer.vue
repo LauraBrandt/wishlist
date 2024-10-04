@@ -1,7 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
+import BaseButton from '../elements/BaseButton.vue'
 
 const listStore = useListStore()
 const { lists, selectedListId, selectedList } = storeToRefs(listStore)
@@ -27,6 +30,31 @@ function selectList(list) {
 defineExpose({
   closeMenu,
 })
+
+const router = useRouter()
+
+const isLoggedIn = ref(false)
+
+let auth
+onMounted(() => {
+  auth = getAuth()
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      isLoggedIn.value = true
+    } else {
+      isLoggedIn.value = false
+    }
+  })
+})
+
+const logout = () => {
+  signOut(auth)
+    .then(() => {
+      router.push('/login')
+    }).catch(err => {
+      console.log('Error logging out', err)
+    })
+}
 </script>
 
 <template>
@@ -47,8 +75,10 @@ defineExpose({
     </div>
     <Transition name="slide-down">
       <div v-if="isExpanded" class="menu-container">
+        <div class="menu-header-container">
+          <h2 class="menu-header">Lists</h2>
+        </div>
         <ul class="menu-items">
-          <li class="menu-item menu-item--empty"/>
           <li
             v-for="list in lists"
             :key="list.id"
@@ -62,8 +92,11 @@ defineExpose({
               {{ list.name }}
             </button>
           </li>
-          <li class="menu-item menu-item--empty"/>
         </ul>
+        <div class="logout-button-container">
+          <BaseButton label="Sign out" @click="logout" />
+        </div>
+        <div class="menu-footer" />
       </div>
     </Transition>
   </nav>
@@ -118,6 +151,19 @@ defineExpose({
   cursor: pointer;
 }
 
+.menu-header-container {
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-header {
+  font-family: var(--header-font);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
 .menu-container {
   padding: 0;
   position: absolute;
@@ -166,10 +212,6 @@ defineExpose({
   background-color: rgba(255, 255, 255, 0.25);
 }
 
-.menu-item--empty {
-  padding: 0.5rem
-}
-
 .menu-item-button {
   padding: 0.75rem 1rem 0.75rem 2rem;
   border: none;
@@ -182,5 +224,14 @@ defineExpose({
   height: 100%;
   text-align: left;
   cursor: pointer;
+}
+
+.menu-footer {
+  padding: 0.5rem;
+}
+
+.logout-button-container {
+  margin: 1rem 1.5rem 0 1.5rem;
+  text-align: right;
 }
 </style>

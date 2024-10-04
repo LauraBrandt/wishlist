@@ -1,11 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useUserStore } from '../stores/user'
+import { useAuthStore } from '../stores/auth'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
 
-const { user } = storeToRefs(useUserStore())
+const { user } = storeToRefs(useAuthStore())
 
 const props = defineProps({
   note: { type: Object, required: true },
@@ -17,7 +17,7 @@ const confirmModalActive = ref(false)
 
 const isMyNote = computed(() => {
   const noteUserId =  props.note.user.id
-  const myUserId = user.value.id
+  const myUserId = user.value?.id
   return noteUserId === myUserId
 })
 

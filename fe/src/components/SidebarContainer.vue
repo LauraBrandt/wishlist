@@ -37,6 +37,7 @@ const { setSelectedList } = listStore
   height: 100%;
   width: 250px;
   background-color: var(--lb-c-blue);
+  flex: 0 0 250px;
 }
 
 @media only screen and (max-width: 950px) {

@@ -2,15 +2,15 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
-import { useUserStore } from '../stores/user'
+import { useAuthStore } from '../stores/auth'
 import AllItems from './AllItems.vue'
 import AllNotes from './AllNotes.vue'
 
 const listStore = useListStore()
 const { selectedList, selectedListId } = storeToRefs(listStore)
 
-const userStore = useUserStore()
-const { user } = storeToRefs(userStore)
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
 
 const hasEditAccess = computed(() => user.value?.list_edit_accesses?.includes(selectedListId.value))
 const hasViewAccess = computed(() => user.value?.list_view_accesses?.includes(selectedListId.value))
