@@ -1,6 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
+import BaseButton from '../elements/BaseButton.vue'
 
 const listStore = useListStore()
 const { lists, selectedListId } = storeToRefs(listStore)

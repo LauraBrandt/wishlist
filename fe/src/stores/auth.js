@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!firebaseUser.value)
 
-  const setFirebaseUserFromCurrentUser = () => {
+  function setFirebaseUserFromCurrentUser() {
     if (auth.currentUser) {
       const { displayName, email, uid, accessToken } = auth.currentUser
       firebaseUser.value = { displayName, email, uid, accessToken }
@@ -31,17 +31,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
   
-  const register = ({ email, password, name }) => {
+  function register({ email, password, name }) {
     authErrorMessage.value = ''
     createUserWithEmailAndPassword(auth, email, password).then((res1) => {
-      updateProfile(auth.currentUser, {
-        displayName: name,
-      }).then(() => {
-        setFirebaseUserFromCurrentUser()
-        router.push('/')
-      }).catch(err => {
-        console.log('Error setting display name to', name, '-', err)
-      });
+      changeDisplayName(name)
+      router.push('/')
     }).catch(err => {
       if (err.code == 'auth/email-already-in-use') {
         authErrorMessage.value = 'Email already exists. Try logging in'
@@ -51,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
-  const login = ({ email, password }) => {
+  function login({ email, password }) {
     authErrorMessage.value = ''
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
@@ -68,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
   }
 
-  const signInWithGoogle = () => {
+  function signInWithGoogle() {
     authErrorMessage.value = ''
     const provider = new GoogleAuthProvider()
     signInWithPopup(auth, provider)
@@ -79,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
       })
   }
 
-  const logout = () => {
+  function logout() {
     authErrorMessage.value = ''
     signOut(auth)
       .then(() => {
@@ -89,11 +83,32 @@ export const useAuthStore = defineStore('auth', () => {
       })
   }
 
-  const setIsLoggedIn = () => {
+  function changeDisplayName(name) {
+    updateProfile(auth.currentUser, {
+      displayName: name,
+    }).then(() => {
+      setFirebaseUserFromCurrentUser()
+    }).catch(err => {
+      console.log('Error setting display name to', name, '-', err)
+    });
+  }
+
+  function setIsLoggedIn() {
     onAuthStateChanged(auth, () => {
       setFirebaseUserFromCurrentUser()
     })
   }
 
-  return { user, firebaseUser, authErrorMessage, isLoggedIn, setIsLoggedIn, register, login, signInWithGoogle, logout }
+  return {
+    user,
+    firebaseUser,
+    authErrorMessage,
+    isLoggedIn,
+    setIsLoggedIn,
+    register,
+    login,
+    signInWithGoogle,
+    logout,
+    changeDisplayName,
+  }
 })

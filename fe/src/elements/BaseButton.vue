@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  label: { type: String, required: true },
+  label: { type: String, default: '' },
   isTextButton: { type: Boolean, default: false },
   isDelete: { type: Boolean, default: false },
   isOutlined: { type: Boolean, default: false },

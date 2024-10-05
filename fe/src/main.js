@@ -14,8 +14,8 @@ import 'froala-editor/css/froala_style.min.css'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBars, faPencil, faXmark } from '@fortawesome/free-solid-svg-icons'
-library.add(faBars, faPencil, faXmark)
+import { faBars, faPencil, faXmark, faCaretDown } from '@fortawesome/free-solid-svg-icons'
+library.add(faCaretDown, faBars, faPencil, faXmark)
 
 initializeApp(firebaseConfig);
 const app = createApp(App)

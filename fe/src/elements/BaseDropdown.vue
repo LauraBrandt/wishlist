@@ -11,11 +11,11 @@ const props = defineProps({
 
 const isActive = ref(false)
 
-const toggle = () => {
+function toggle() {
   isActive.value = !isActive.value
 }
 
-const itemClicked = item => {
+function itemClicked(item) {
   item.action()
   isActive.value = false
 }

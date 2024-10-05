@@ -4,9 +4,11 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
+import BaseModal from '../elements/BaseModal.vue'
 
 const authStore = useAuthStore()
-const { logout } = authStore
+const { firebaseUser } = storeToRefs(authStore)
+const { changeDisplayName, logout } = authStore
 
 const listStore = useListStore()
 const { lists, selectedListId, selectedList } = storeToRefs(listStore)
@@ -32,6 +34,19 @@ function selectList(list) {
 defineExpose({
   closeMenu,
 })
+
+const nameModalActive = ref(false)
+const displayName = ref('')
+function openNameModal() {
+  displayName.value = firebaseUser.value?.displayName || ''
+  nameModalActive.value = true
+  closeMenu()
+}
+function saveName() {
+  nameModalActive.value = false
+  changeDisplayName(displayName.value)
+}
+
 </script>
 
 <template>
@@ -71,11 +86,26 @@ defineExpose({
           </li>
         </ul>
         <div class="logout-button-container">
+          <BaseButton label="Change display name" is-text-button @click="openNameModal" />
           <BaseButton label="Sign out" @click="logout" />
         </div>
         <div class="menu-footer" />
       </div>
     </Transition>
+    <BaseModal
+      v-model:active="nameModalActive"
+      title="Change Display Name"
+      aria-label="change display name modal"
+    >
+      <input v-model="displayName" type="text" class="name-input" />
+      <template #footer>
+        <div/>
+        <BaseButton
+          label="Save"
+          @click="saveName"
+        />
+      </template>
+    </BaseModal>
   </nav>
 </template>
 
@@ -210,5 +240,18 @@ defineExpose({
 .logout-button-container {
   margin: 1rem 1.5rem 0 1.5rem;
   text-align: right;
+}
+
+.logout-button-container button{
+  margin-left: 1rem;
+}
+
+.name-input {
+  display: block;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  width: 75%;
+  font-size: 1rem;
+  padding: 0.25rem 0.75rem;
 }
 </style>
