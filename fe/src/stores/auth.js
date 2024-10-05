@@ -1,10 +1,11 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
   getAuth,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
@@ -13,45 +14,69 @@ import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
-  const isLoggedIn = ref(false)
+  const firebaseUser = ref(null)
   const authErrorMessage = ref('')
   
   const auth = getAuth()
   const router = useRouter()
+
+  const isLoggedIn = computed(() => !!firebaseUser.value)
+
+  const setFirebaseUserFromCurrentUser = () => {
+    if (auth.currentUser) {
+      const { displayName, email, uid, accessToken } = auth.currentUser
+      firebaseUser.value = { displayName, email, uid, accessToken }
+    } else {
+      firebaseUser.value = null
+    }
+  }
   
-  const register = ({ email, password }) => {
+  const register = ({ email, password, name }) => {
     authErrorMessage.value = ''
-    createUserWithEmailAndPassword(auth, email, password).then((response) => {
-      router.push('/')
+    createUserWithEmailAndPassword(auth, email, password).then((res1) => {
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      }).then(() => {
+        setFirebaseUserFromCurrentUser()
+        router.push('/')
+      }).catch(err => {
+        console.log('Error setting display name to', name, '-', err)
+      });
     }).catch(err => {
-      console.log('Problem with registration', err)
+      if (err.code == 'auth/email-already-in-use') {
+        authErrorMessage.value = 'Email already exists. Try logging in'
+      } else {
+        console.log('Problem with registration', err)
+      }
     })
   }
 
   const login = ({ email, password }) => {
     authErrorMessage.value = ''
-    signInWithEmailAndPassword(auth, email, password).then(() => {
-      router.push('/')
-    }).catch(err => {
-      switch (err.code) {
-        case 'auth/invalid-email':
-          authErrorMessage.value = 'Invalid email'
-        case 'auth/user-not-found':
-          authErrorMessage.value = 'No account with that email was found'
-        case 'auth/invalid-password':
-          authErrorMessage.value = 'Email or password was incorrect'
-      }
-    })
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        router.push('/')
+      }).catch(err => {
+        switch (err.code) {
+          case 'auth/invalid-email':
+            authErrorMessage.value = 'Invalid email'
+          case 'auth/user-not-found':
+            authErrorMessage.value = 'No account with that email was found'
+          case 'auth/invalid-password':
+            authErrorMessage.value = 'Email or password was incorrect'
+        }
+      })
   }
 
   const signInWithGoogle = () => {
     authErrorMessage.value = ''
     const provider = new GoogleAuthProvider()
-    signInWithPopup(auth, provider).then(result => {
-      router.push('/')
-    }).catch(err => {
-      console.log('Google sign in error', err)
-    })
+    signInWithPopup(auth, provider)
+      .then(() => {
+        router.push('/')
+      }).catch(err => {
+        console.log('Google sign in error', err)
+      })
   }
 
   const logout = () => {
@@ -65,14 +90,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const setIsLoggedIn = () => {
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        isLoggedIn.value = true
-      } else {
-        isLoggedIn.value = false
-      }
+    onAuthStateChanged(auth, () => {
+      setFirebaseUserFromCurrentUser()
     })
   }
 
-  return { user, authErrorMessage, isLoggedIn, setIsLoggedIn, register, login, signInWithGoogle, logout }
+  return { user, firebaseUser, authErrorMessage, isLoggedIn, setIsLoggedIn, register, login, signInWithGoogle, logout }
 })

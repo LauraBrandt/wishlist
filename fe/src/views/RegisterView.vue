@@ -12,6 +12,7 @@ const { register, signInWithGoogle } = authStore
   <CredentialsBody
     title="Create an account"
     submit-button-text="Sign Up"
+    include-name
     :error-message="authErrorMessage"
     @submit="register"
     @signInWithGoogle="signInWithGoogle"
