@@ -1,42 +1,18 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref } from 'vue'
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from 'firebase/auth'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import CredentialsBody from '../components/CredentialsBody.vue'
 
-const router = useRouter()
-
-const errorMessage = ref('')
-
-const register = ({ email, password }) => {
-  const auth = getAuth()
-  createUserWithEmailAndPassword(auth, email, password).then(() => {
-    router.push('/')
-  }).catch(err => {
-    console.log('Problem with registration', err)
-  })
-}
-
-const signInWithGoogle = () => {
-  const provider = new GoogleAuthProvider()
-  signInWithPopup(getAuth(), provider).then(result => {
-    router.push('/')
-  }).catch(err => {
-    console.log('Google sign in error', err)
-  })
-}
+const authStore = useAuthStore()
+const { authErrorMessage } = storeToRefs(authStore)
+const { register, signInWithGoogle } = authStore
 </script>
 
 <template>
   <CredentialsBody
     title="Create an account"
     submit-button-text="Sign Up"
-    :error-message="errorMessage"
+    :error-message="authErrorMessage"
     @submit="register"
     @signInWithGoogle="signInWithGoogle"
   >

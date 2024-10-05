@@ -1,33 +1,11 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import BaseButton from '../elements/BaseButton.vue'
 
-const router = useRouter()
-
-const isLoggedIn = ref(false)
-
-let auth
-onMounted(() => {
-  auth = getAuth()
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      isLoggedIn.value = true
-    } else {
-      isLoggedIn.value = false
-    }
-  })
-})
-
-const logout = () => {
-  signOut(auth)
-    .then(() => {
-      router.push('/login')
-    }).catch(err => {
-      console.log('Error logging out', err)
-    })
-}
+const authStore = useAuthStore()
+const { isLoggedIn } = storeToRefs(authStore)
+const { logout } = authStore
 </script>
 
 <template>

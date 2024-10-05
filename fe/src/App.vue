@@ -1,5 +1,14 @@
 <script setup>
+import { onMounted } from 'vue'
+import { useAuthStore } from './stores/auth'
 import HeaderContainer from './components/HeaderContainer.vue'
+
+const authStore = useAuthStore()
+const { setIsLoggedIn } = authStore
+
+onMounted(() => {
+  setIsLoggedIn()
+})
 </script>
 
 <template>

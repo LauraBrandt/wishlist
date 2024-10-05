@@ -1,10 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
+
+const authStore = useAuthStore()
+const { logout } = authStore
 
 const listStore = useListStore()
 const { lists, selectedListId, selectedList } = storeToRefs(listStore)
@@ -30,31 +32,6 @@ function selectList(list) {
 defineExpose({
   closeMenu,
 })
-
-const router = useRouter()
-
-const isLoggedIn = ref(false)
-
-let auth
-onMounted(() => {
-  auth = getAuth()
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      isLoggedIn.value = true
-    } else {
-      isLoggedIn.value = false
-    }
-  })
-})
-
-const logout = () => {
-  signOut(auth)
-    .then(() => {
-      router.push('/login')
-    }).catch(err => {
-      console.log('Error logging out', err)
-    })
-}
 </script>
 
 <template>
