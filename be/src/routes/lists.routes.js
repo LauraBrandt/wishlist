@@ -1,9 +1,11 @@
 const express = require('express')
+const checkIfAuthenticated = require('./auth-middleware')
 const router = express.Router()
-const listController = require("../controllers/list.controller.js");
-const itemController = require("../controllers/list_item.controller.js");
-const noteController = require("../controllers/list_note.controller.js");
+const listController = require('../controllers/list.controller.js');
+const itemController = require('../controllers/list_item.controller.js');
+const noteController = require('../controllers/list_note.controller.js');
 
+router.use('/', checkIfAuthenticated)
 router.get('/', listController.getLists)
 router.post('/:listId/items', itemController.createItems)
 router.post('/:listId/items/:itemId([0-9]*)', itemController.updateItem)

@@ -99,6 +99,15 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
+  async function getAuthHeader() {
+    const token = await auth.currentUser.getIdToken()
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  }
+
   return {
     user,
     firebaseUser,
@@ -110,5 +119,6 @@ export const useAuthStore = defineStore('auth', () => {
     signInWithGoogle,
     logout,
     changeDisplayName,
+    getAuthHeader,
   }
 })

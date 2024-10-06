@@ -1,7 +1,11 @@
 import axios from 'axios'
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useAuthStore } from './auth'
 import { beURL } from '../../config'
+
+const authStore = useAuthStore()
+const { getAuthHeader } = authStore
 
 export const useListStore = defineStore('list', () => {
   const lists = ref([])
@@ -24,13 +28,14 @@ export const useListStore = defineStore('list', () => {
     selectedListId.value = listId
   }
 
-  function fetchLists() {
-    axios.get(`${beURL}/lists`)
+  async function fetchLists() {
+    const header = await getAuthHeader()
+    axios.get(`${beURL}/lists`, header)
       .then(response => {
         setLists(response.data)
       })
       .catch(error => {
-        console.log('fetch lists error', error)
+        console.log('fetch lists error:', error.response.data.message)
       });
   }
 
