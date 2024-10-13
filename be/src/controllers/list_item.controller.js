@@ -40,8 +40,22 @@ async function deleteItem(req, res) {
   }
 }
 
+async function updateIsBought(req, res) {
+  try {
+    const itemId = req.params.itemId
+    const toUpdate = {
+      is_bought: req.body.is_bought,
+    }
+    await ListItem.findByIdAndUpdate(itemId, toUpdate);
+    res.end()
+  } catch(err) {
+    res.status(500).send({ message: err.message || 'An error occurred while updating the item\'s bought status.' })
+  }
+}
+
 module.exports = {
   createItems,
   updateItem,
   deleteItem,
+  updateIsBought,
 }

@@ -13,7 +13,6 @@ import {
 import { useRouter } from 'vue-router'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
   const firebaseUser = ref(null)
   const authErrorMessage = ref('')
   
@@ -109,7 +108,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    user,
     firebaseUser,
     authErrorMessage,
     isLoggedIn,

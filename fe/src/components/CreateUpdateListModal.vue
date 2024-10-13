@@ -120,7 +120,7 @@ async function deleteList() {
             :disabled="isEditing"
           >
         </div>
-        <label for="ownerCanView" class="checkbox-label">
+        <label for="ownerCanView" class="checkbox-label" :class="{'checkbox-label--disabled': isEditing}">
           Let me view what others have bought and noted on this list.
           <span class="checkbox-warning">Note: This cannot be changed after saving. Other users will know if this setting is enabled.</span>
         </label>
@@ -208,6 +208,10 @@ input[type=checkbox].checkbox-input {
   height: 1.25rem;
   cursor: pointer;
   margin-right: 0.5rem;
+}
+
+.checkbox-label--disabled {
+  opacity: 0.7;
 }
 
 .checkbox-warning {

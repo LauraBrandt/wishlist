@@ -5,8 +5,8 @@ import BaseModal from '../elements/BaseModal.vue'
 
 const props = defineProps({
   item: { type: Object, required: true },
-  hasEditAccess: { type: Boolean, default: false },
-  hasViewAccess: { type: Boolean, default: false },
+  isMyList: { type: Boolean, default: false },
+  canViewListStatus: { type: Boolean, default: false },
   isLastItemBeingAdded: { type: Boolean, default: false },
 })
 
@@ -80,7 +80,7 @@ const config = ref({
 
 <template>
   <div class="item-container">
-    <div v-if="isEditing && hasEditAccess" class="item__edit">
+    <div v-if="isEditing && isMyList" class="item__edit">
       <input v-model="itemNameForEdit" placeholder="Enter Item" class="item__edit-name-input" />
       <froala
         v-model:value="itemDescriptionForEdit"
@@ -105,7 +105,7 @@ const config = ref({
     </div>
     <div v-else class="item__view">
       <div class="item__view__row">
-        <div v-if="hasViewAccess" class="item__view__bought-checkbox-container">
+        <div v-if="canViewListStatus" class="item__view__bought-checkbox-container">
           <input
             type="checkbox"
             :name="`bought_${item.id}`"
@@ -117,7 +117,7 @@ const config = ref({
         <div class="item__view__item-container" :class="{'item__view__--bought': item.is_bought}">
           <div class="item__view__name-container">
             <p class="item__view__name">{{ item.name }}</p>
-            <div v-if="hasEditAccess" class="item__view__button-container">
+            <div v-if="isMyList" class="item__view__button-container">
               <BaseButton
                 is-text-button
                 label="edit"

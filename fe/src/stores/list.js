@@ -35,7 +35,7 @@ export const useListStore = defineStore('list', () => {
         setLists(response.data)
       })
       .catch(error => {
-        console.log('fetch lists error:', error.response.data.message)
+        console.log('fetch lists error:', error.response.data.message || error.response.data.error)
       });
   }
 

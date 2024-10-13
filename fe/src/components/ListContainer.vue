@@ -7,13 +7,13 @@ import AllItems from './AllItems.vue'
 import AllNotes from './AllNotes.vue'
 
 const listStore = useListStore()
-const { selectedList, selectedListId } = storeToRefs(listStore)
+const { selectedList } = storeToRefs(listStore)
 
 const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
+const { firebaseUser } = storeToRefs(authStore)
 
-const hasEditAccess = computed(() => user.value?.list_edit_accesses?.includes(selectedListId.value))
-const hasViewAccess = computed(() => user.value?.list_view_accesses?.includes(selectedListId.value))
+const isMyList = computed(() => selectedList.value.owner_id === firebaseUser.value.uid)
+const canViewListStatus = computed(() => !isMyList.value || selectedList.value.owner_can_view)
 
 const emit = defineEmits(['close-topnav-menu'])
 
@@ -27,12 +27,12 @@ function closeTopnavMenu() {
     <h1 class="title">{{ selectedList?.name }}</h1>
     <div class="list-body">
       <AllItems
-        :has-edit-access="hasEditAccess"
-        :has-view-access="hasViewAccess"
+        :is-my-list="isMyList"
+        :can-view-list-status="canViewListStatus"
         class="items"
       />
       <AllNotes
-        v-if="hasViewAccess"
+        v-if="canViewListStatus"
         class="notes"
       />
     </div>

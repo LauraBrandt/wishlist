@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
@@ -10,13 +11,16 @@ import { beURL } from '../../config'
 
 const NUM_ITEMS_INITIAL = 5
 
+const authStore = useAuthStore()
+const { getAuthHeader } = authStore
+
 const listStore = useListStore()
 const { selectedList, selectedListId } = storeToRefs(listStore)
 const { fetchLists } = listStore
 
 defineProps({
-  hasEditAccess: { type: Boolean, default: false },
-  hasViewAccess: { type: Boolean, default: false },
+  isMyList: { type: Boolean, default: false },
+  canViewListStatus: { type: Boolean, default: false },
 })
 
 const items = computed(() => selectedList.value?.items || [])
@@ -58,7 +62,7 @@ function cancelAddItems() {
   tempItems.value = tempItems.value.filter(item => !!item.id)
 }
 
-function saveAddedItems() {
+async function saveAddedItems() {
   const newItems = []
   tempItems.value.forEach((item, index) => {
     if (!item.id) {
@@ -74,59 +78,67 @@ function saveAddedItems() {
     }
   })
   const url = `${beURL}/lists/${selectedListId.value}/items`
-  axios.post(url, newItems)
+
+  const header = await getAuthHeader()
+  axios.post(url, newItems, header)
     .then(() => {
       fetchLists()
     })
     .catch(error => {
-      console.log('save items error', error)
+      console.log('save items error:', error.response.data.message || error.response.data.error)
     });
 }
 
-function saveItemAtIndex(index, newItem) {
+async function saveItemAtIndex(index, newItem) {
   const item = tempItems.value[index]
-  const url = `${beURL}/lists/${selectedListId.value}/items${item.id ? `/${item.id}` : ''}`
+  const url = `${beURL}/lists/${selectedListId.value}/items${item.id ? `/${item.id}/update` : ''}`
   const itemToSave = {
     name: newItem.name,
     description: newItem.description,
   }
-  axios.post(url, itemToSave)
+
+  const header = await getAuthHeader()
+  axios.post(url, itemToSave, header)
     .then(() => {
       fetchLists()
     })
     .catch(error => {
-      console.log('save item error', error)
+      console.log('save item error:', error.response.data.message || error.response.data.error)
     });
 }
 
-function deleteItemAtIndex(index) {
+async function deleteItemAtIndex(index) {
   const item = tempItems.value[index]
   if (item.id) {
     const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}`
-    axios.delete(url)
+
+    const header = await getAuthHeader()
+    axios.delete(url, header)
       .then(() => {
         fetchLists()
       })
       .catch(error => {
-        console.log('delete item error', error)
+        console.log('delete item error:', error.response.data.message || error.response.data.error)
       });
   } else {
     tempItems.value.splice(index, 1)
   }
 }
 
-function markBoughtItemAtIndex(index, isBought) {
+async function markBoughtItemAtIndex(index, isBought) {
   const item = tempItems.value[index]
-  const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}`
-  const itemToSave = {
+  const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}/is_bought`
+  const toPost = {
     is_bought: isBought,
   }
-  axios.post(url, itemToSave)
+
+  const header = await getAuthHeader()
+  axios.post(url, toPost, header)
     .then(() => {
       fetchLists()
     })
     .catch(error => {
-      console.log('mark bought error', error)
+      console.log('mark bought error:', error.response.data.message || error.response.data.error)
     });
 }
 </script>
@@ -134,15 +146,15 @@ function markBoughtItemAtIndex(index, isBought) {
 <template>
   <section>
     <h2 class="section-header">Items</h2>
-    <div>
-      <div v-if="hasViewAccess && tempItems.length > 0" class="bought-label">Is Already Bought?</div>
+     <div>
+      <div v-if="canViewListStatus && tempItems.length > 0" class="bought-label">Is Already Bought?</div>
       <SingleItem
         v-for="(item, index) in tempItems"
         :key="item.id"
         ref="itemRefs"
         :item="item"
-        :has-edit-access="hasEditAccess"
-        :has-view-access="hasViewAccess"
+        :is-my-list="isMyList"
+        :can-view-list-status="canViewListStatus"
         :is-last-item-being-added="lastItemBeingAddedIndex === index"
         @cancel-add="cancelAddItems"
         @save-add="saveAddedItems"
@@ -154,7 +166,7 @@ function markBoughtItemAtIndex(index, isBought) {
         There are no items on this list.
       </div>
     </div>
-    <div v-if="hasEditAccess && !hasUnsavedItem">
+    <div v-if="isMyList && !hasUnsavedItem">
       <BaseButton
         label="Add Items"
         class="add-button"

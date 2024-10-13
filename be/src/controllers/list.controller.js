@@ -124,10 +124,23 @@ async function checkIfHasAccessToList(req, res, next) {
   }
 }
 
+async function checkIfHasStatusAccessToList(req, res, next) {
+  const listId = req.params.listId
+  const list = await List.findById(listId)
+  const listOwnerId = list.owner_id
+
+  if (listOwnerId !== req.currentUserId || list.owner_can_view) {
+    next()
+  } else {
+    res.status(403).send({ error: 'No access' })
+  }
+}
+
 module.exports = {
   getLists,
   createList,
   updateList,
   deleteList,
   checkIfHasAccessToList,
+  checkIfHasStatusAccessToList,
 }
