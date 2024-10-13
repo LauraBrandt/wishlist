@@ -1,12 +1,11 @@
 <script setup>
-import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
 import { useAuthStore } from '../stores/auth'
 import BaseButton from '../elements/BaseButton.vue'
 import SingleNote from './SingleNote.vue'
-import { beURL } from '../../config'
+import api from '../api'
 
 const listStore = useListStore()
 const { selectedList, selectedListId } = storeToRefs(listStore)
@@ -14,7 +13,6 @@ const { fetchLists } = listStore
 
 const authStore = useAuthStore()
 const { firebaseUser } = storeToRefs(authStore)
-const { getAuthHeader } = authStore
 
 const notes = computed(() => selectedList.value?.notes || [])
 const tempNotes = ref([...notes.value])
@@ -38,31 +36,22 @@ function addNote() {
 
 async function saveNoteAtIndex(index, noteText) {
   const note = tempNotes.value[index]
-  
-  const url = `${beURL}/lists/${selectedListId.value}/notes${note.id ? `/${note.id}` : ''}`
+  const url = `/lists/${selectedListId.value}/notes${note.id ? `/${note.id}` : ''}`
   const noteToSave = { text: noteText }
-  const header = await getAuthHeader()
-  axios.post(url, noteToSave, header)
-    .then(() => {
-      fetchLists()
-    })
-    .catch(error => {
-      console.log('save note error:', error.response.data.message || error.response.data.error)
-    });
+  const result = await api.post(url, noteToSave)
+  if (!result.error) {
+    fetchLists()
+  }
 }
 
 async function deleteNoteAtIndex(index) {
   const note = tempNotes.value[index]
   if (note.id) {
-    const url = `${beURL}/lists/${selectedListId.value}/notes/${note.id}`
-    const header = await getAuthHeader()
-    axios.delete(url, header)
-      .then(() => {
-        fetchLists()
-      })
-      .catch(error => {
-        console.log('delete note error:', error.response.data.message || error.response.data.error)
-      });
+    const url = `/lists/${selectedListId.value}/notes/${note.id}`
+    const result = await api.delete(url)
+    if (!result.error) {
+      fetchLists()
+    }
   } else {
     tempNotes.value.splice(index, 1)
   }

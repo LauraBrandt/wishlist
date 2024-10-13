@@ -1,16 +1,14 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import axios from 'axios'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
-import { beURL } from '../../config'
+import api from '../api'
 
 const authStore = useAuthStore()
 const { firebaseUser } = storeToRefs(authStore)
-const { getAuthHeader } = authStore
 
 const listStore = useListStore()
 const { lists, selectedListId } = storeToRefs(listStore)
@@ -58,18 +56,13 @@ watch(modalActive, () => {
 const invalid = computed(() => !name.value)
 
 async function saveList() {
-  const url = `${beURL}/lists${props.list ? `/${props.list.id}` : ''}`
+  const url = `/lists${props.list ? `/${props.list.id}` : ''}`
   const listToSave = { name: name.value, owner_can_view: ownerCanView.value }
-
-  const header = await getAuthHeader()
-  axios.post(url, listToSave, header)
-    .then(() => {
-      fetchLists()
-      modalActive.value = false
-    })
-    .catch(error => {
-      console.log('save list error:', error.response.data.message || error.response.data.error)
-    });
+  const result = await api.post(url, listToSave)
+  if (!result.error) {
+    fetchLists()
+    modalActive.value = false
+  }
 }
 
 const confirmDeleteModalActive = ref(false)
@@ -78,21 +71,16 @@ function confirmDelete() {
 }
 
 async function deleteList() {
-  const url = `${beURL}/lists/${props.list.id}`
-
-  const header = await getAuthHeader()
-  axios.delete(url, header)
-    .then(() => {
-      fetchLists()
-      if (props.list.id === selectedListId.value) {
-        setSelectedList(lists.value[0].id)
-      }
-      confirmDeleteModalActive.value = false
-      modalActive.value = false
-    })
-    .catch(error => {
-      console.log('delete list error:', error.response.data.message || error.response.data.error)
-    });
+  const url = `/lists/${props.list.id}`
+  const result = await api.delete(url)
+  if (!result.error) {
+    fetchLists()
+    if (props.list.id === selectedListId.value) {
+      setSelectedList(lists.value[0].id)
+    }
+    confirmDeleteModalActive.value = false
+    modalActive.value = false
+  }
 }
 </script>
 
@@ -146,16 +134,15 @@ async function deleteList() {
     </BaseModal>
     <BaseModal
       v-model:active="confirmDeleteModalActive"
-      title="Confirm Delete List"
+      title="Delete List"
+      aria-label="delete list confirmation modal"
     >
       Are you sure you want to delete this list?
       <template #footer>
         <div/>
         <BaseButton
-          v-if="isEditing"
-          label="Yes, Delete"
+          label="Delete List"
           is-delete
-          class="delete-button"
           @click="deleteList"
         />
       </template>

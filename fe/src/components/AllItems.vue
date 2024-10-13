@@ -1,18 +1,13 @@
 <script setup>
-import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
 import SingleItem from './SingleItem.vue'
-import { beURL } from '../../config'
+import api from '../api'
 
 const NUM_ITEMS_INITIAL = 5
-
-const authStore = useAuthStore()
-const { getAuthHeader } = authStore
 
 const listStore = useListStore()
 const { selectedList, selectedListId } = storeToRefs(listStore)
@@ -77,46 +72,34 @@ async function saveAddedItems() {
       }
     }
   })
-  const url = `${beURL}/lists/${selectedListId.value}/items`
-  const header = await getAuthHeader()
-  axios.post(url, newItems, header)
-    .then(() => {
-      fetchLists()
-    })
-    .catch(error => {
-      console.log('save items error:', error.response.data.message || error.response.data.error)
-    });
+  const url = `/lists/${selectedListId.value}/items`
+  const result = await api.post(url, newItems)
+  if (!result.error) {
+    fetchLists()
+  }
 }
 
 async function saveItemAtIndex(index, newItem) {
   const item = tempItems.value[index]
-  const url = `${beURL}/lists/${selectedListId.value}/items${item.id ? `/${item.id}/update` : ''}`
   const itemToSave = {
     name: newItem.name,
     description: newItem.description,
   }
-  const header = await getAuthHeader()
-  axios.post(url, itemToSave, header)
-    .then(() => {
+  const url = `/lists/${selectedListId.value}/items${item.id ? `/${item.id}/update` : ''}`
+  const result = await api.post(url, itemToSave)
+    if (!result.error) {
       fetchLists()
-    })
-    .catch(error => {
-      console.log('save item error:', error.response.data.message || error.response.data.error)
-    });
+    }
 }
 
 async function deleteItemAtIndex(index) {
   const item = tempItems.value[index]
   if (item.id) {
-    const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}`
-    const header = await getAuthHeader()
-    axios.delete(url, header)
-      .then(() => {
-        fetchLists()
-      })
-      .catch(error => {
-        console.log('delete item error:', error.response.data.message || error.response.data.error)
-      });
+    const url = `/lists/${selectedListId.value}/items/${item.id}`
+    const result = await api.delete(url)
+    if (!result.error) {
+      fetchLists()
+    }
   } else {
     tempItems.value.splice(index, 1)
   }
@@ -124,18 +107,14 @@ async function deleteItemAtIndex(index) {
 
 async function markBoughtItemAtIndex(index, isBought) {
   const item = tempItems.value[index]
-  const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}/is_bought`
+  const url = `/lists/${selectedListId.value}/items/${item.id}/is_bought`
   const toPost = {
     is_bought: isBought,
   }
-  const header = await getAuthHeader()
-  axios.post(url, toPost, header)
-    .then(() => {
-      fetchLists()
-    })
-    .catch(error => {
-      console.log('mark bought error:', error.response.data.message || error.response.data.error)
-    });
+  const result = await api.post(url, toPost)
+  if (!result.error) {
+    fetchLists()
+  }
 }
 </script>
 
