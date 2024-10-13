@@ -21,7 +21,7 @@ const checkIfAuthenticated = (req, res, next) => {
       const { authToken } = req
       const userInfo = await firebase.auth().verifyIdToken(authToken)
       req.currentUserId = userInfo.uid
-      req.currentUserName = userInfo.displayName
+      req.currentUserName = userInfo.name || userInfo.displayName
       return next()
     } catch (e) {
       return res.status(401).send({ error: 'Could not authorize' })

@@ -39,8 +39,21 @@ async function deleteNote(req, res) {
   }
 }
 
+async function checkIfHasAccessToNote(req, res, next) {
+  const noteId = req.params.noteId
+  const note = await ListNote.findById(noteId)
+  const noteOwnerId = note?.user_id
+
+  if (note && noteOwnerId === req.currentUserId) {
+    next()
+  } else {
+    res.status(403).send({ error: 'No access to note' })
+  }
+}
+
 module.exports = {
   createNote,
   updateNote,
   deleteNote,
+  checkIfHasAccessToNote,
 }

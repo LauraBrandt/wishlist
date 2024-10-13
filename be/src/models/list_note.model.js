@@ -6,7 +6,7 @@ module.exports = (mongoose) => {
         ref: 'List',
         required: true,
       },
-      user_id: { type: Number, required: true },
+      user_id: { type: String, required: true },
       user_name: { type: String },
       text: String,
     },

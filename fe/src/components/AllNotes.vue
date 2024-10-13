@@ -13,7 +13,8 @@ const { selectedList, selectedListId } = storeToRefs(listStore)
 const { fetchLists } = listStore
 
 const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
+const { firebaseUser } = storeToRefs(authStore)
+const { getAuthHeader } = authStore
 
 const notes = computed(() => selectedList.value?.notes || [])
 const tempNotes = ref([...notes.value])
@@ -29,38 +30,38 @@ watch(
 
 function addNote() {
   tempNotes.value.push({
-    user: {
-      id: user.value?.id,
-      name: user.value?.name,
-    },
+    user_id: firebaseUser.value.uid,
+    user_name: firebaseUser.value.displayName,
     text: '',
   })
 }
 
-function saveNoteAtIndex(index, noteText) {
+async function saveNoteAtIndex(index, noteText) {
   const note = tempNotes.value[index]
   
   const url = `${beURL}/lists/${selectedListId.value}/notes${note.id ? `/${note.id}` : ''}`
   const noteToSave = { text: noteText }
-  axios.post(url, noteToSave)
+  const header = await getAuthHeader()
+  axios.post(url, noteToSave, header)
     .then(() => {
       fetchLists()
     })
     .catch(error => {
-      console.log('save note error', error)
+      console.log('save note error:', error.response.data.message || error.response.data.error)
     });
 }
 
-function deleteNoteAtIndex(index) {
+async function deleteNoteAtIndex(index) {
   const note = tempNotes.value[index]
   if (note.id) {
     const url = `${beURL}/lists/${selectedListId.value}/notes/${note.id}`
-    axios.delete(url)
+    const header = await getAuthHeader()
+    axios.delete(url, header)
       .then(() => {
         fetchLists()
       })
       .catch(error => {
-        console.log('delete note error', error)
+        console.log('delete note error:', error.response.data.message || error.response.data.error)
       });
   } else {
     tempNotes.value.splice(index, 1)

@@ -5,7 +5,7 @@ import { useAuthStore } from '../stores/auth'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
 
-const { user } = storeToRefs(useAuthStore())
+const { firebaseUser } = storeToRefs(useAuthStore())
 
 const props = defineProps({
   note: { type: Object, required: true },
@@ -15,11 +15,7 @@ const isEditing = ref(false)
 const noteTextForEdit = ref('')
 const confirmModalActive = ref(false)
 
-const isMyNote = computed(() => {
-  const noteUserId =  props.note.user.id
-  const myUserId = user.value?.id
-  return noteUserId === myUserId
-})
+const isMyNote = computed(() => props.note.user_id === firebaseUser.value.uid)
 
 onMounted(() => {
   if (!props.note.id) {
@@ -121,7 +117,7 @@ const config = ref({
         </BaseButton>
       </div>
       <froalaView :value="note.text"></froalaView>
-      <div class="note__view__author">- {{ note.user.name }}</div>
+      <div class="note__view__author">- {{ note.user_name }}</div>
     </div>
     <BaseModal
       v-model:active="confirmModalActive"

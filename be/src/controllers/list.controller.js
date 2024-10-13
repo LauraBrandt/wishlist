@@ -115,9 +115,9 @@ async function deleteList(req, res) {
 async function checkIfHasAccessToList(req, res, next) {
   const listId = req.params.listId
   const list = await List.findById(listId)
-  const listOwnerId = list.owner_id
+  const listOwnerId = list?.owner_id
 
-  if (listOwnerId === req.currentUserId) {
+  if (list && listOwnerId === req.currentUserId) {
     next()
   } else {
     res.status(403).send({ error: 'No access to list' })
@@ -127,9 +127,9 @@ async function checkIfHasAccessToList(req, res, next) {
 async function checkIfHasStatusAccessToList(req, res, next) {
   const listId = req.params.listId
   const list = await List.findById(listId)
-  const listOwnerId = list.owner_id
+  const listOwnerId = list?.owner_id
 
-  if (listOwnerId !== req.currentUserId || list.owner_can_view) {
+  if (list && (listOwnerId !== req.currentUserId || list.owner_can_view)) {
     next()
   } else {
     res.status(403).send({ error: 'No access' })

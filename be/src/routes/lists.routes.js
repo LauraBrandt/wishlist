@@ -16,7 +16,7 @@ router.post('/:listId/items/:itemId([0-9]*)/update', listController.checkIfHasAc
 router.post('/:listId/items/:itemId([0-9]*)/is_bought', listController.checkIfHasStatusAccessToList, itemController.updateIsBought)
 router.delete('/:listId/items/:itemId([0-9]*)', listController.checkIfHasAccessToList, itemController.deleteItem)
 router.post('/:listId/notes', listController.checkIfHasStatusAccessToList, noteController.createNote)
-router.post('/:listId/notes/:noteId([0-9]*)', listController.checkIfHasStatusAccessToList, noteController.updateNote)
-router.delete('/:listId/notes/:noteId([0-9]*)', listController.checkIfHasStatusAccessToList, noteController.deleteNote)
+router.post('/:listId/notes/:noteId([0-9]*)', listController.checkIfHasStatusAccessToList, noteController.checkIfHasAccessToNote, noteController.updateNote)
+router.delete('/:listId/notes/:noteId([0-9]*)', listController.checkIfHasStatusAccessToList, noteController.checkIfHasAccessToNote, noteController.deleteNote)
 
 module.exports = router

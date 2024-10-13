@@ -78,7 +78,6 @@ async function saveAddedItems() {
     }
   })
   const url = `${beURL}/lists/${selectedListId.value}/items`
-
   const header = await getAuthHeader()
   axios.post(url, newItems, header)
     .then(() => {
@@ -96,7 +95,6 @@ async function saveItemAtIndex(index, newItem) {
     name: newItem.name,
     description: newItem.description,
   }
-
   const header = await getAuthHeader()
   axios.post(url, itemToSave, header)
     .then(() => {
@@ -111,7 +109,6 @@ async function deleteItemAtIndex(index) {
   const item = tempItems.value[index]
   if (item.id) {
     const url = `${beURL}/lists/${selectedListId.value}/items/${item.id}`
-
     const header = await getAuthHeader()
     axios.delete(url, header)
       .then(() => {
@@ -131,7 +128,6 @@ async function markBoughtItemAtIndex(index, isBought) {
   const toPost = {
     is_bought: isBought,
   }
-
   const header = await getAuthHeader()
   axios.post(url, toPost, header)
     .then(() => {
