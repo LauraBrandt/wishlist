@@ -5,16 +5,16 @@ import CredentialsBody from '../components/CredentialsBody.vue'
 
 const authStore = useAuthStore()
 const { authErrorMessage } = storeToRefs(authStore)
-const { login, signInWithGoogle } = authStore
+const { sendPasswordReset } = authStore
 </script>
 
 <template>
   <CredentialsBody
-    title="Login"
-    submit-button-text="Sign In"
+    title="Reset Password"
+    email-only
+    submit-button-text="Send Password Reset Link"
     :error-message="authErrorMessage"
-    @submit="login"
-    @signInWithGoogle="signInWithGoogle"
+    @submit="sendPasswordReset"
   >
     <template #redirect>
       <div>
@@ -22,7 +22,7 @@ const { login, signInWithGoogle } = authStore
         <router-link to="/register">Register here</router-link>
       </div>
       <div>
-        <router-link to="/forgot-password">Forgot password?</router-link>
+        <router-link to="/login">Login</router-link>
       </div>
     </template>
   </CredentialsBody>

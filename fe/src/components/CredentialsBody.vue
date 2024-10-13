@@ -6,6 +6,7 @@ import GoogleSignInButton from '../elements/GoogleSignInButton.vue'
 defineProps({
   title: { type: String, required: true },
   includeName: { type: Boolean, default: false },
+  emailOnly: { type: Boolean, default: false },
   submitButtonText: { type: String, required: true },
   errorMessage: { type: String, default: '' },
 })
@@ -21,7 +22,7 @@ const emit = defineEmits(['submit', 'signInWithGoogle'])
   <div class="login-wrapper">
     <h1 class="title">{{ title }}</h1>
     <div class="login-box">
-      <div v-if="includeName" class="input-row">
+      <div v-if="includeName && !emailOnly" class="input-row">
         <label for="name">Display Name</label>
         <input
           v-model="name"
@@ -39,7 +40,7 @@ const emit = defineEmits(['submit', 'signInWithGoogle'])
           name="email"
         />
       </div>
-      <div class="input-row">
+      <div v-if="!emailOnly" class="input-row">
         <label for="password">Password</label>
         <input
           v-model="password"
@@ -54,8 +55,10 @@ const emit = defineEmits(['submit', 'signInWithGoogle'])
         class="login-button"
         @click="emit('submit', { email, password, name })"
       />
-      <div class="separator-1">OR</div>
-      <GoogleSignInButton @click="emit('signInWithGoogle')" />
+      <template v-if="!emailOnly">
+        <div class="separator-1">OR</div>
+        <GoogleSignInButton @click="emit('signInWithGoogle')" />
+      </template>
       <div class="separator-2"/>
       <div>
         <slot name="redirect" />
