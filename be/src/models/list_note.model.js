@@ -6,11 +6,8 @@ module.exports = (mongoose) => {
         ref: 'List',
         required: true,
       },
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-      },
+      user_id: { type: Number, required: true },
+      user_name: { type: String },
       text: String,
     },
   )

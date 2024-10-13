@@ -82,12 +82,12 @@ const emit = defineEmits(['click'])
   color: var(--lb-c-teal-hover);
 }
 
-.button.is-danger.is-outlined {
+.button.is-delete.is-outlined {
   background-color: var(--color-background);
   color: var(--lb-c-red);
 }
 
-.button.is-danger.is-outlined:hover {
+.button.is-delete.is-outlined:hover {
   background-color: var(--color-background);
   color: var(--lb-c-red-hover);
 }

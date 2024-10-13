@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/auth'
 import { useListStore } from '../stores/list'
 import BaseButton from '../elements/BaseButton.vue'
 import BaseModal from '../elements/BaseModal.vue'
+import CreateUpdateListModal from './CreateUpdateListModal.vue';
 
 const authStore = useAuthStore()
 const { firebaseUser } = storeToRefs(authStore)
@@ -47,6 +48,17 @@ function saveName() {
   changeDisplayName(displayName.value)
 }
 
+const createUpdateListModalActive = ref(false)
+const listToEdit = ref(null)
+
+function showCreateUpdateListModal(list) {
+  createUpdateListModalActive.value = true
+  listToEdit.value = list
+}
+
+function isMyList(list) {
+  return list.owner_id === firebaseUser.value.uid
+}
 </script>
 
 <template>
@@ -69,6 +81,10 @@ function saveName() {
       <div v-if="isExpanded" class="menu-container">
         <div class="menu-header-container">
           <h2 class="menu-header">Lists</h2>
+          <BaseButton
+            label="Add List"
+            @click="showCreateUpdateListModal()"
+          />
         </div>
         <ul class="menu-items">
           <li
@@ -83,6 +99,14 @@ function saveName() {
             >
               {{ list.name }}
             </button>
+            <BaseButton
+              v-if="isMyList(list)"
+              is-text-button
+              label="update list"
+              @click="showCreateUpdateListModal(list)"
+            >
+              <FAIcon :icon="['fas', 'pencil']" transform="grow-2" />
+            </BaseButton>
           </li>
         </ul>
         <div class="logout-button-container">
@@ -106,6 +130,10 @@ function saveName() {
         />
       </template>
     </BaseModal>
+    <CreateUpdateListModal
+      v-model:modalActive="createUpdateListModalActive"
+      :list="listToEdit"
+    />
   </nav>
 </template>
 
@@ -213,6 +241,8 @@ function saveName() {
 
 .menu-item {
   background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  padding-right: 1rem;
 }
 
 .menu-item--selected {

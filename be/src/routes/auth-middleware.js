@@ -1,29 +1,30 @@
 const firebase = require('../firebase-service.js')
 
-const getAuthToken = (request, response, next) => {
-  const headerToken = request.headers.authorization
+const getAuthToken = (req, res, next) => {
+  const headerToken = req.headers.authorization
   if (!headerToken) {
-    request.authToken = null
-    return response.status(401).send({ message: 'No token provided' })
+    req.authToken = null
+    return res.status(401).send({ message: 'No token provided' })
   } else if (headerToken.split(' ')[0] !== 'Bearer') {
-    request.authToken = null
-    response.status(401).send({ message: 'Invalid token' })
+    req.authToken = null
+    res.status(401).send({ message: 'Invalid token' })
   } else {
     const token = headerToken.split(' ')[1]
-    request.authToken = token
+    req.authToken = token
   }
   next()
 }
 
-const checkIfAuthenticated = (request, response, next) => {
-  getAuthToken(request, response, async () => {
+const checkIfAuthenticated = (req, res, next) => {
+  getAuthToken(req, res, async () => {
     try {
-      const { authToken } = request
+      const { authToken } = req
       const userInfo = await firebase.auth().verifyIdToken(authToken)
-      request.authId = userInfo.uid
+      req.currentUserId = userInfo.uid
+      req.currentUserName = userInfo.displayName
       return next()
     } catch (e) {
-      return response.status(401).send({ error: 'Could not authorize' })
+      return res.status(401).send({ error: 'Could not authorize' })
     }
   })
 }

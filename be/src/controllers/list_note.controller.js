@@ -1,6 +1,5 @@
 const db = require('../models')
 const ListNote = db.list_note
-const { currentUserId } = require('../../config')
 
 async function createNote(req, res) {
   try {
@@ -8,8 +7,9 @@ async function createNote(req, res) {
     const noteText = req.body.text
     const note = new ListNote({
       list: listId,
-      user: currentUserId,
       text: noteText,
+      user_id: req.currentUserId,
+      user_name: req.currentUserName,
     })
     await note.save()
     res.end()

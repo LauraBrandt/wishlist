@@ -7,6 +7,11 @@ const noteController = require('../controllers/list_note.controller.js');
 
 router.use('/', checkIfAuthenticated)
 router.get('/', listController.getLists)
+router.post('/', listController.createList)
+router.use('/:listId', listController.checkIfHasAccessToList)
+router.post('/:listId', listController.updateList)
+router.delete('/:listId', listController.deleteList)
+
 router.post('/:listId/items', itemController.createItems)
 router.post('/:listId/items/:itemId([0-9]*)', itemController.updateItem)
 router.delete('/:listId/items/:itemId([0-9]*)', itemController.deleteItem)
