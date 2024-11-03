@@ -1,10 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useListStore } from '../stores/list'
 import { useAuthStore } from '../stores/auth'
 import AllItems from './AllItems.vue'
 import AllNotes from './AllNotes.vue'
+import BaseButton from '../elements/BaseButton.vue'
+import CreateUpdateListModal from './CreateUpdateListModal.vue';
 
 const listStore = useListStore()
 const { selectedList } = storeToRefs(listStore)
@@ -12,28 +14,46 @@ const { selectedList } = storeToRefs(listStore)
 const authStore = useAuthStore()
 const { firebaseUser } = storeToRefs(authStore)
 
-const isMyList = computed(() => selectedList.value.owner_id === firebaseUser.value.uid)
-const canViewListStatus = computed(() => !isMyList.value || selectedList.value.owner_can_view)
+const isMyList = computed(() => selectedList.value?.owner_id === firebaseUser.value.uid)
+const canViewListStatus = computed(() => !isMyList.value || selectedList.value?.owner_can_view)
 
 const emit = defineEmits(['close-topnav-menu'])
 
 function closeTopnavMenu() {
   emit('close-topnav-menu')
 }
+
+const createUpdateListModalActive = ref(false)
+
+function showCreateUpdateListModal() {
+  createUpdateListModalActive.value = true
+}
 </script>
 
 <template>
   <main class="list-container" @click.stop="closeTopnavMenu">
-    <h1 class="title">{{ selectedList?.name }}</h1>
-    <div class="list-body">
-      <AllItems
-        :is-my-list="isMyList"
-        :can-view-list-status="canViewListStatus"
-        class="items"
+    <template v-if="selectedList">
+      <h1 class="title">{{ selectedList?.name }}</h1>
+      <div class="list-body">
+        <AllItems
+          :is-my-list="isMyList"
+          :can-view-list-status="canViewListStatus"
+          class="items"
+        />
+        <AllNotes
+          v-if="canViewListStatus"
+          class="notes"
+        />
+      </div>
+    </template>
+    <div v-else class="empty-container">
+      <h1 class="empty-title">No lists exist...yet</h1>
+      <BaseButton
+        label="Add List"
+        @click="showCreateUpdateListModal()"
       />
-      <AllNotes
-        v-if="canViewListStatus"
-        class="notes"
+      <CreateUpdateListModal
+        v-model:modalActive="createUpdateListModalActive"
       />
     </div>
   </main>
@@ -67,6 +87,21 @@ function closeTopnavMenu() {
 .notes {
   flex: 0 0 350px;
   padding-right: 1rem;
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+}
+
+.empty-title {
+  font-family: var(--header-font);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 @media only screen and (max-width: 950px) {

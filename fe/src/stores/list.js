@@ -8,7 +8,10 @@ export const useListStore = defineStore('list', () => {
 
   const selectedList = computed(() => {
     const list = lists.value.find(list => list.id === selectedListId.value)
-    return { ...list }
+    if (list) {
+      return { ...list }
+    }
+    return null
   })
 
   function setLists(payload) {
