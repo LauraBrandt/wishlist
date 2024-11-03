@@ -16,6 +16,8 @@ coverage
 config.js
 firebase.json
 firebase-credentials.json
+app.yaml
+.env
 
 /cypress/videos/
 /cypress/screenshots/

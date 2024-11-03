@@ -1,11 +1,12 @@
 const express = require('express')
 const cors = require('cors')
-const { PORT, feURL, mongodbURI } = require('./config')
+
+require('dotenv').config()
 
 const app = express()
 
 const corsOptions = {
-  origin: feURL,
+  origin: process.env.FE_URL_LOCAL,
   credentials: true,
 }
 app.use(cors(corsOptions))
@@ -17,7 +18,7 @@ require('./src/routes')(app)
 
 const db = require('./src/models')
 db.mongoose
-  .connect(mongodbURI)
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to the database')
   })
@@ -26,7 +27,7 @@ db.mongoose
     process.exit()
   })
 
-const port = process.env.PORT || PORT
+const port = process.env.PORT || 3000
 app.listen(port, () => {
   console.log(`Server is running on port ${port}.`)
 })
